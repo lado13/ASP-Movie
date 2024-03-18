@@ -24,10 +24,14 @@ body {
 }
 
 
+.main-container{
+    min-height:100vh;
+}
+
+
 .logo {
     font-size: 40px;
     transition: all .4s ease-in-out;
-    
 }
 
     .logo:hover {
