@@ -1,0 +1,21 @@
+﻿@model List<AppUser>
+
+
+
+<div class="container-fluid">
+
+    
+    @foreach (var user in Model)
+    {
+        <div class="d-flex users-container">
+            <img class="user-value" width="100" height="100" src="~/avatars/@user.Avatar" />
+            <h4 class="text-warning user-value">@user.UserName</h4>
+            <h4 class="text-warning user-value">@user.Email</h4>
+            <form asp-controller="Account" asp-action="RemoveUser" method="post">
+                <input type="hidden" name="userId" value="@user.Id" />
+                <button type="submit" class="btn btn-danger ms-5">Remove</button>
+            </form>
+        </div>
+    }
+
+</div>

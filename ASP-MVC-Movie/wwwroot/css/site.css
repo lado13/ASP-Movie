@@ -1,0 +1,300 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+   /* background-color: #121318;*/
+    background-image: url('../SVG/_SvgPartial.svg'); /* Path to your SVG file */
+    background-size: cover;
+}
+
+
+.logo {
+    font-size: 40px;
+    transition: all .4s ease-in-out;
+    
+}
+
+    .logo:hover {
+        transform: rotate(360deg);
+        color: #00fff8;
+    }
+
+
+    .navbar {
+        background: linear-gradient(180deg, #8d0cff, #080b29, #121318);
+    }
+
+
+.sing::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: #00ff2a;
+    bottom: 0;
+    left: 0;
+    transform-origin: bottom left;
+    transform: scaleX(0);
+    transition: all .3s ease-in-out;
+    border-radius: 20px;
+}
+
+.sing {
+    position: relative;
+    cursor: pointer;
+}
+
+.sing:hover::before {
+    transform: scaleX(1);
+}
+
+
+.footer {
+    background: linear-gradient(180deg, #212430, #080b29, #8d0cff);
+    height: 80px;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+}
+
+
+.genre-category {
+    margin: auto;
+    background-color: #1e2b36;
+    border: 1px solid white;
+    width: 168px;
+}
+
+.genre-link {
+    border: 1px solid #9b00d4;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    transition: all .3s ease-in-out;
+    font-weight: bold;
+}
+
+    .genre-link:hover {
+        color: #1ddf0b !important;
+        scale: 1.2;
+        transform: translateY(5px) rotate(5deg);
+        background-color: #1b012b;
+    }
+
+
+    .movie-info-container {
+        background-color: #272f38;
+        max-width: 878px;
+    }
+
+.movie-container-link{
+    transition: .3s ease-in-out;
+}
+
+
+.movie-container-link:hover {
+    transform: translateY(-10px);
+}
+
+.imdb {
+    border: 1px solid white;
+    width: 50px;
+    height: 33px;
+    color: #f2ff05;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    background-color: #272f38;
+    color: white;
+    border-radius: 23px 133px 23px 44px;
+    border: 1px solid #ff00f7;
+}
+
+
+.comment-user-name {
+    color: #00ff4e;
+    font-weight:bold;
+}
+
+
+.comment-input {
+    background-color: #7d7d7d!important;
+    color:white !important;
+}
+
+
+.carousel-inner {
+    border: 1px solid #9b00d4 !important;
+    padding: 15px;
+    background-color: #1e2b36;
+}
+
+
+
+.play {
+    font-size: 50px;
+    color: #00fff8;
+    transition: .3s ease-in-out
+}
+.play:hover{
+    scale:1.1;
+}
+
+
+.sing-log{
+
+    margin-top:100px;
+    margin-bottom:200px;
+}
+
+.live-search-container {
+    position: absolute;
+    top: 51px;
+    left: -3px;
+    z-index: 99999;
+    color: white;
+    background-color: #2d333f;
+    padding: 34px;
+}
+
+
+.search-result{
+    display:flex;
+}
+
+.serch-value {
+    width: 235px;
+}
+
+
+.search-link{
+    height:0;
+    
+}
+
+
+.search-inp {
+    min-width: 350px;
+    height: 25px;
+    border-radius: unset;
+}
+
+.avatar-img{
+    border-radius:50%;
+    object-fit:cover;
+}
+
+
+.users-container{
+    border:1px solid white;
+    padding:15px;
+}
+
+.user-value{
+    margin-right:15px;
+    width:200px;
+    object-fit:cover;
+}
+
+
+.comment-remove {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    color:white;
+    transition:all .2s ease-in-out;
+}
+
+
+    .comment-remove:hover {
+        font-size: 20px;
+        color: red;
+    }
+
+
+
+.edit-user-container{
+    height:70vh;
+}
+
+
+.modal-content {
+    background: linear-gradient(180deg, #121318, #080b29, #8d0cff);
+    color: white;
+    max-height: 400px;
+}
+
+
+.edit-info{
+    cursor:pointer;
+}
+
+
+.admin-logo {
+    font-size: 60px;
+    text-align: center;
+    padding: 100px;
+}
+
+.video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+.passEye {
+    position: absolute;
+    right: 6px;
+    top: 30px;
+    color: #6b6c76;
+    font-size: 17px;
+    z-index:999;
+    cursor:pointer;
+}
+
+
+.page-item.active .page-link {
+    background-color: #44009b;
+    border-color: white;
+    color: white;
+    opacity: 1;
+}
+
+.page-link {
+    border: none;
+    opacity: 0.6;
+    margin-right: 5px;
+    border-radius: 0px !important;
+    background-color: #00f4fd;
+    color:black;
+}
+
+
+.edit-user-avatar{
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    object-fit:cover;
+}

@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> signInManager
+
+@{
+    var currentUser = signInManager.UserManager.GetUserAsync(User).Result;
+    string avatarPath = currentUser != null && !string.IsNullOrEmpty(currentUser.Avatar) ? $"/avatars/{currentUser.Avatar}" : "https://cdn-icons-png.flaticon.com/512/1053/1053244.png";
+}
+
+<ul class="navbar-nav">
+    @if (signInManager.IsSignedIn(User))
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @User.Identity!.Name.ToUpper()
+                @if (!string.IsNullOrEmpty(currentUser?.Avatar))
+                {
+                    <img width="50" height="50" src="@avatarPath" alt="Avatar" class="avatar-img">
+                }
+                else
+                {
+                    <img width="50" height="50" src="@avatarPath" alt="Default Avatar" class="avatar-img">
+                }
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li>
+                    <a class="dropdown-item fw-bold edit-info" id="openModalBtn" aria-label="Update User Information">
+                        Edit Info
+                    </a>
+                  
+                    <a class="dropdown-item fw-bold" asp-action="Logout" asp-controller="Account">
+                        Log out
+                    </a>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-white fw-bold sing" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white fw-bold sing" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+        </li>
+    }
+</ul>
+
+
+
+
+
+
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Update User Information</h5>
+
+            </div>
+            <div class="modal-body">
+    
+                <form asp-action="UserInfoEdit" asp-controller="Account" method="post" class="edit-user-container" enctype="multipart/form-data">
+                   
+                    <div class="form-group mt-3 ">
+                        <label for="AvatarImage">Avatar:</label>
+                        <img class="edit-user-avatar" src="@avatarPath" />
+                        <input type="file" class="form-control-file d-block mt-2" name="AvatarImage" aria-label="Avatar Image">
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <label for="Name">Name:</label>
+                        <input type="text" class="form-control w-50" id="Name" name="Name" value="@User.Identity.Name" aria-label="Name">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-4">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

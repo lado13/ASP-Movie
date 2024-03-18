@@ -1,0 +1,311 @@
+﻿@model List<Movie>
+
+@{
+    ViewData["Title"] = "Movies";
+}
+
+<div id="carouselExampleAutoplaying" class="carousel slide mt-5 mb-5" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        @foreach (var movie in Model)
+        {
+            <div class="carousel-item @(movie == Model.First() ? "active" : "")">
+                <video class="movie-container-link" width="500" height="240" autoplay muted>
+                    <source src="@movie.FilePath" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="m-auto"></div>
+                <div class="carousel-caption  w-100 d-md-block">
+                    <h5 class="w-50 m-auto mb-3 text-warning">@movie.Title</h5>
+                    <p class="w-50 m-auto">@movie.Description</p>
+                    <div class="m-auto mt-4">
+                        <a asp-action="DetailMovie" asp-route-id="@movie.Id">
+                            <i class="play fa-solid fa-circle-play"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="m-auto text-white admin-logo">
+        <i class="fa-solid fa-user-tie"></i>
+        <h1 class="text-warning">
+            Admin Panel
+        </h1>
+    </div>
+
+    <div>
+        <a class="btn btn-primary" asp-action="CreateGenre">Add Genre</a>
+        <a class="btn btn-primary" asp-action="CreateMovie">Add Movie</a>
+        <a class="btn btn-primary" asp-action="ShowAllUsers" asp-controller="Account">Show All Users</a>
+    </div>
+}
+
+<div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-2 genre-category me-5">
+            @foreach (var genre in ViewBag.Genres)
+            {
+                <div>
+                    <a class="nav-link text-white genre-link" asp-action="MoviesByGenre" asp-route-genreId="@genre.Id">@genre.Name</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="d-flex">
+                            <a class="text-warning me-5" asp-action="UpdateGenre" asp-route-id="@genre.Id">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                            <a class="text-danger" asp-action="RemoveGenre" asp-route-id="@genre.Id">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="col">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-3">
+                        <a asp-action="DetailMovie" asp-route-id="@item.Id">
+                            <video class="movie-container-link" width="250" height="200">
+                                <source src="@item.FilePath" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </a>
+                        <p class="text-white">@item.Title</p>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="d-flex">
+                                <a class="text-warning me-5" asp-action="UpdateMovie" asp-route-id="@item.Id">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>
+                                <a class="text-danger" asp-action="RemoveMovie" asp-route-id="@item.Id">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-5 mb-5">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.PageIndex == i ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageIndex="@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* @model List<Movie>
+
+
+@{
+    ViewData["Title"] = "Movies";
+}
+
+
+
+
+
+
+
+
+<div id="carouselExampleAutoplaying" class="carousel slide mt-5 mb-5" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        @foreach (var movie in Model)
+        {
+            <div class="carousel-item @(movie == Model.First() ? "active" : "")">
+                <video class="movie-container-link" width="500" height="240" autoplay muted>
+                    <source src="@movie.FilePath" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="m-auto"></div>
+                <div class="carousel-caption  w-100 d-md-block">
+                    <h5 class="w-50 m-auto mb-3 text-warning">@movie.Title</h5>
+                    <p class="w-50 m-auto">@movie.Description</p>
+                    <div class="m-auto mt-4">
+                        <a asp-action="DetailMovie"  asp-route-id="@movie.Id">
+                            <i class="play fa-solid fa-circle-play"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+
+
+
+
+
+
+
+
+
+@if (User.IsInRole("Admin"))
+{
+
+    <div class="m-auto text-white admin-logo">
+        <i class="fa-solid fa-user-tie"></i>
+        <h1 class="text-warning">
+            Admin Panel
+        </h1>
+    </div>
+
+
+    <div>
+        <a class="btn btn-primary" asp-action="CreateGenre">Add Genre</a>
+
+        <a class="btn btn-primary" asp-action="CreateMovie">Add Movie</a>
+
+        <a class="btn btn-primary" asp-action="ShowAllUsers" asp-controller="Account">Show All Users</a>
+    </div>
+    
+}
+
+
+
+
+
+<div class="container-fluid mt-5">
+
+    <div class="row">
+        <div class="col-2 genre-category me-5">
+            @foreach (var genre in ViewBag.Genres)
+            {
+                <div>
+                    <a class="nav-link text-white genre-link" asp-action="Index" asp-route-genreId="@genre.Id">@genre.Name</a>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="d-flex">
+                            <a class="text-warning me-5 user-value" asp-action="UpdateGenre" asp-route-id="@genre.Id">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                            <a class="text-danger" asp-action="RemoveGenre" asp-route-id="@genre.Id">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="col">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-4">
+                        <a asp-action="DetailMovie" asp-route-id="@item.Id">
+                            <video class="movie-container-link" width="320" height="240">
+                                <source src="@item.FilePath" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </a>
+                        <p class="text-white">
+                            @item.Title
+                        </p>
+
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="d-flex">
+                                <a class="text-warning me-5" asp-action="UpdateMovie" asp-route-id="@item.Id">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>
+                                <a class="text-danger" asp-action="RemoveMovie" asp-route-id="@item.Id">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-5 mb-5">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.PageIndex == i ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-genreId="@ViewBag.GenreId" asp-route-pageIndex="@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+ *@

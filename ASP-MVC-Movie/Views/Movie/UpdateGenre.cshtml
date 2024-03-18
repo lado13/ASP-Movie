@@ -1,0 +1,19 @@
+﻿@model ASP_MVC_Movie.Models.Genre
+
+@{
+    ViewData["Title"] = "Update Genre";
+}
+
+<h1 class="text-white">@ViewData["Title"]</h1>
+
+<form asp-action="UpdateGenre" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label class="text-white" asp-for="Name" class="control-label">new Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Update</button>
+</form>
