@@ -12,7 +12,7 @@ $(document).ready(function () {
 
         if (query.length > 0) {
             $.ajax({
-                url: '/Movie/Search',
+                url: '/Search/SearchByTitle',
                 type: 'GET',
                 data: { query: query },
                 success: function (data) {

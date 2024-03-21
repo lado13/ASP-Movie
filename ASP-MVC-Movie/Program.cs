@@ -1,10 +1,17 @@
 using ASP_MVC_Movie.Data;
+using ASP_MVC_Movie.Interfaces;
 using ASP_MVC_Movie.Models;
+using ASP_MVC_Movie.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<ICommentService, CommentService>();  
+builder.Services.AddTransient<IUserManagementService, UserManagementService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(option =>

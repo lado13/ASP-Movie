@@ -2,6 +2,7 @@
 using ASP_MVC_Movie.Interfaces;
 using ASP_MVC_Movie.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASP_MVC_Movie.Services
 {
@@ -9,37 +10,97 @@ namespace ASP_MVC_Movie.Services
     {
 
         private readonly AppDbContext _context;
-        private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _environment;
 
-        public MovieService(AppDbContext context)
+        public MovieService(AppDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
-        public void AddMovie(Movie movie)
+
+        public async Task<Movie> GetMovieByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Movies.FindAsync(id);
         }
 
-        public void DeleteMovie(int id)
+        public async Task<List<Movie>> GetAllMoviesAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Movies.ToListAsync();
         }
 
-        public IEnumerable<Movie> GetAllMovie()
+        public async Task CreateMovieAsync(Movie movie)
         {
-            throw new NotImplementedException();
+            if (movie.VideoFile != null && movie.VideoFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "videos");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + movie.VideoFile.FileName;
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await movie.VideoFile.CopyToAsync(fileStream);
+                }
+
+                movie.FilePath = "/videos/" + uniqueFileName;
+            }
+            _context.Add(movie);
+            await _context.SaveChangesAsync();
         }
 
-        public Movie GetByIdMovie(int id)
+        public async Task UpdateMovieAsync(Movie movie)
         {
-            throw new NotImplementedException();
+            if (movie.VideoFile != null && movie.VideoFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "videos");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + movie.VideoFile.FileName;
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await movie.VideoFile.CopyToAsync(fileStream);
+                }
+
+                movie.FilePath = "/videos/" + uniqueFileName;
+            }
+            _context.Update(movie);
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateMovie(Movie movie)
+        public async Task RemoveMovieAsync(int id)
         {
-            throw new NotImplementedException();
+            var movie = await _context.Movies.FindAsync(id);
+            if (movie != null)
+            {
+                _context.Movies.Remove(movie);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Movie> GetMovieDetailsAsync(int id)
+        {
+            return await _context.Movies
+                .Include(m => m.Genre)
+                .Include(m => m.Comments)
+                .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public bool MovieExists(int id)
+        {
+            return _context.Movies.Any(e => e.Id == id);
         }
     }
 }

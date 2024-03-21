@@ -1,7 +1,9 @@
 ﻿using ASP_MVC_Movie.Data;
+using ASP_MVC_Movie.Interfaces;
 using ASP_MVC_Movie.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASP_MVC_Movie.Controllers
@@ -12,30 +14,31 @@ namespace ASP_MVC_Movie.Controllers
         private readonly AppDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IGenreService _genreService;
+        private readonly IMovieService _movieService;
 
 
-        public MovieController(AppDbContext context, UserManager<AppUser> userManager, IWebHostEnvironment environment)
+        public MovieController(AppDbContext context, UserManager<AppUser> userManager, IWebHostEnvironment environment, IGenreService genreService, IMovieService movieService)
         {
             _context = context;
             _userManager = userManager;
             _environment = environment;
+            _genreService = genreService;
+            _movieService = movieService;
         }
-
-
-
 
 
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 8)
         {
             IQueryable<Movie> allMovies = _context.Movies.Include(m => m.Genre);
-            ViewBag.Genres = await _context.Genres.ToListAsync(); 
+            ViewBag.Genres = await _genreService.GetAllGenres();
             return await Paginate(allMovies, pageIndex, pageSize);
         }
 
         public async Task<IActionResult> MoviesByGenre(int genreId, int pageIndex = 1, int pageSize = 8)
         {
             IQueryable<Movie> movies = _context.Movies.Include(m => m.Genre).Where(m => m.GenreId == genreId);
-            ViewBag.Genres = await _context.Genres.ToListAsync();
+            ViewBag.Genres = await _genreService.GetAllGenres();
             return await Paginate(movies, pageIndex, pageSize);
         }
 
@@ -54,20 +57,6 @@ namespace ASP_MVC_Movie.Controllers
         }
 
 
-
-        [HttpGet]
-        public IActionResult Search(string query)
-        {
-            var searchResults = _context.Movies
-                .Where(m => m.Title.Contains(query))
-                .Select(m => new { m.Id, m.Title, m.FilePath }) 
-                .ToList();
-            return Json(searchResults);
-        }
-
-
-
-
         public IActionResult CreateGenre()
         {
             return View();
@@ -75,20 +64,16 @@ namespace ASP_MVC_Movie.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateGenre([Bind("Id,Name")] Genre genre)
+        public async Task<IActionResult> CreateGenre(Genre genre)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(genre);
-                await _context.SaveChangesAsync();
+                await _genreService.CreateGenre(genre);
                 return RedirectToAction(nameof(Index));
             }
             return View(genre);
         }
 
-
-
-      
         public async Task<IActionResult> UpdateGenre(int? id)
         {
             if (id == null)
@@ -96,7 +81,7 @@ namespace ASP_MVC_Movie.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres.FindAsync(id);
+            var genre = await _genreService.GetGenreById(id.Value);
             if (genre == null)
             {
                 return NotFound();
@@ -107,7 +92,7 @@ namespace ASP_MVC_Movie.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateGenre(int id, [Bind("Id,Name")] Genre genre)
+        public async Task<IActionResult> UpdateGenre(int id, Genre genre)
         {
             if (id != genre.Id)
             {
@@ -118,12 +103,11 @@ namespace ASP_MVC_Movie.Controllers
             {
                 try
                 {
-                    _context.Update(genre);
-                    await _context.SaveChangesAsync();
+                    await _genreService.UpdateGenre(genre);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GenreExists(genre.Id))
+                    if (!_genreService.GenreExists(genre.Id))
                     {
                         return NotFound();
                     }
@@ -137,14 +121,6 @@ namespace ASP_MVC_Movie.Controllers
             return View(genre);
         }
 
-
-        private bool GenreExists(int id)
-        {
-            return _context.Genres.Any(e => e.Id == id);
-        }
-
-
-
         public async Task<IActionResult> RemoveGenre(int? id)
         {
             if (id == null)
@@ -152,23 +128,31 @@ namespace ASP_MVC_Movie.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre == null)
+            var result = await _genreService.RemoveGenre(id.Value);
+            if (!result)
             {
                 return NotFound();
             }
 
-            _context.Genres.Remove(genre);
-            await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
 
-
-
-        public IActionResult CreateMovie()
+        public async Task<IActionResult> CreateMovie()
         {
-            ViewBag.Genres = _context.Genres.ToList();
+
+            var genres = await _genreService.GetAllGenres();
+            if (genres == null)
+            {
+                genres = new List<Genre>();
+            }
+
+            var genreSelectList = genres.Select(g => new SelectListItem
+            {
+                Value = g.Id.ToString(),
+                Text = g.Name
+            }).ToList();
+
+            ViewBag.Genres = genreSelectList;
             return View();
         }
 
@@ -176,90 +160,88 @@ namespace ASP_MVC_Movie.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMovie(Movie movie)
         {
+
+            var genres = await _genreService.GetAllGenres();
+            if (genres == null)
+            {
+                genres = new List<Genre>();
+            }
+
+            var genreSelectList = genres.Select(g => new SelectListItem
+            {
+                Value = g.Id.ToString(),
+                Text = g.Name
+            }).ToList();
+
+            ViewBag.Genres = genreSelectList;
+
+
             if (ModelState.IsValid)
             {
-                if (movie.VideoFile != null && movie.VideoFile.Length > 0)
-                {
-                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "videos");
-
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + movie.VideoFile.FileName;
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await movie.VideoFile.CopyToAsync(fileStream);
-                    }
-
-                    movie.FilePath = "/videos/" + uniqueFileName;
-                }
-               
-
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
+                await _movieService.CreateMovieAsync(movie);
                 return RedirectToAction(nameof(Index));
             }
 
             return View(movie);
         }
 
-
-
-        public IActionResult UpdateMovie(int id)
+        public async Task<IActionResult> UpdateMovie(int id)
         {
-            var movie = _context.Movies.Find(id);
+            var movie = await _movieService.GetMovieByIdAsync(id);
             if (movie == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Genres = _context.Genres.ToList();
+            var genres = await _genreService.GetAllGenres();
+            if (genres == null)
+            {
+                genres = new List<Genre>();
+            }
+
+            var genreSelectList = genres.Select(g => new SelectListItem
+            {
+                Value = g.Id.ToString(),
+                Text = g.Name
+            }).ToList();
+
+            ViewBag.Genres = genreSelectList;
             return View(movie);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateMovie(int id, [Bind("Id,Title,GenreId,Country,Rating,Director,Description,ReleaseDate,VideoFile")] Movie movie)
+        public async Task<IActionResult> UpdateMovie(int id, Movie movie)
         {
             if (id != movie.Id)
             {
                 return NotFound();
             }
 
+            var genres = await _genreService.GetAllGenres();
+            if (genres == null)
+            {
+                genres = new List<Genre>();
+            }
+
+            var genreSelectList = genres.Select(g => new SelectListItem
+            {
+                Value = g.Id.ToString(),
+                Text = g.Name
+            }).ToList();
+
+            ViewBag.Genres = genreSelectList;
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (movie.VideoFile != null && movie.VideoFile.Length > 0)
-                    {
-                        var uploadsFolder = Path.Combine(_environment.WebRootPath, "videos");
-
-                        if (!Directory.Exists(uploadsFolder))
-                        {
-                            Directory.CreateDirectory(uploadsFolder);
-                        }
-
-                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + movie.VideoFile.FileName;
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await movie.VideoFile.CopyToAsync(fileStream);
-                        }
-
-                        movie.FilePath = "/videos/" + uniqueFileName;
-                    }
-
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
+                    await _movieService.UpdateMovieAsync(movie);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MovieExists(movie.Id))
+                    if (!_movieService.MovieExists(movie.Id))
                     {
                         return NotFound();
                     }
@@ -270,33 +252,16 @@ namespace ASP_MVC_Movie.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.Genres = _context.Genres.ToList();
+ 
             return View(movie);
         }
 
-        private bool MovieExists(int id)
-        {
-            return _context.Movies.Any(e => e.Id == id);
-        }
-
-
-
+       
         public async Task<IActionResult> RemoveMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            _context.Movies.Remove(movie);
-
+            await _movieService.RemoveMovieAsync(id);
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
 
         public async Task<IActionResult> DetailMovie(int? id)
         {
@@ -305,11 +270,7 @@ namespace ASP_MVC_Movie.Controllers
                 return NotFound();
             }
 
-            var movie = await _context.Movies
-                .Include(m => m.Genre)
-                .Include(m => m.Comments)
-                .ThenInclude(c => c.User) 
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var movie = await _movieService.GetMovieDetailsAsync(id.Value);
 
             if (movie == null)
             {
@@ -318,15 +279,6 @@ namespace ASP_MVC_Movie.Controllers
 
             return View(movie);
         }
-
-
-
-
-
-
-
-
-
 
 
 

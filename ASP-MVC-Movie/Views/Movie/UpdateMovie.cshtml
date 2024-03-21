@@ -20,8 +20,12 @@
 
     <div class="form-group">
         <label class="text-white" asp-for="GenreId" class="control-label">Genre</label>
-        <select asp-for="GenreId" class="form-control" asp-items="@(new SelectList(ViewBag.Genres, "Id", "Name", Model.GenreId))">
+        <select asp-for="GenreId" class="form-control">
             <option value="">-- Select Genre --</option>
+            @foreach (var item in ViewBag.Genres)
+            {
+                <option value="@item.Value">@item.Text</option>
+            }
         </select>
         <span asp-validation-for="GenreId" class="text-danger"></span>
     </div>

@@ -1,8 +1,11 @@
-﻿using ASP_MVC_Movie.Models;
+﻿using ASP_MVC_Movie.Interfaces;
+using ASP_MVC_Movie.Models;
 using ASP_MVC_Movie.Role;
 using ASP_MVC_Movie.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ASP_MVC_Movie.Controllers
 {
@@ -12,13 +15,14 @@ namespace ASP_MVC_Movie.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IUserManagementService _userManagementService;
 
-
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IWebHostEnvironment environment)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IWebHostEnvironment environment, IUserManagementService userManagementService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _environment = environment;
+            _userManagementService = userManagementService;
         }
 
 
@@ -60,7 +64,7 @@ namespace ASP_MVC_Movie.Controllers
                         await _userManager.UpdateAsync(user);
                     }
 
-                    await _userManager.AddToRoleAsync(user, ApplicationRoles.User);
+                    await _userManager.AddToRoleAsync(user, ApplicationRoles.Admin);
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Movie");
                 }
@@ -105,39 +109,24 @@ namespace ASP_MVC_Movie.Controllers
         }
 
 
-
-
         [HttpGet]
-        public IActionResult ShowAllUsers()
+        public async Task<IActionResult> ShowAllUsers()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _userManagementService.GetAllUsers();
             return View(users);
         }
 
 
 
-        public IActionResult RemoveUser(string userId)
+        public async Task<IActionResult> RemoveUser(string userId)
         {
-            var user = _userManager.FindByIdAsync(userId).Result;
-            if (user != null)
+            var success = await _userManagementService.RemoveUser(userId);
+            if (success)
             {
-                var result = _userManager.DeleteAsync(user).Result;
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("ShowAllUsers");
-                }
-                else
-                {
-                    return View("Error");
-                }
+                return RedirectToAction("ShowAllUsers");
             }
-            else
-            {
-                return NotFound();
-            }
+            return View("Error");
         }
-
-
 
 
 
@@ -149,66 +138,15 @@ namespace ASP_MVC_Movie.Controllers
                 return View(model);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var success = await _userManagementService.EditUserInfo(userId, model);
+            if (!success)
             {
-                return NotFound();
-            }
-
-            user.UserName = model.Name;
-
-            if (model.AvatarImage != null && model.AvatarImage.Length > 0)
-            {
-                string uploadsFolder = Path.Combine(_environment.WebRootPath, "avatars");
-                Directory.CreateDirectory(uploadsFolder);
-
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.AvatarImage.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.AvatarImage.CopyToAsync(fileStream);
-                }
-
-                user.Avatar = uniqueFileName;
-                await _userManager.UpdateAsync(user);
-            }
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return View(model);
+                return View("Error");
             }
 
             return RedirectToAction("Index", "Movie");
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
