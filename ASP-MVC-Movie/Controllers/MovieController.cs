@@ -290,7 +290,6 @@ namespace ASP_MVC_Movie.Controllers
             }
 
             _context.Movies.Remove(movie);
-            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
