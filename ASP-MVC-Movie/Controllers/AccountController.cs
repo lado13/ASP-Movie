@@ -64,7 +64,7 @@ namespace ASP_MVC_Movie.Controllers
                         await _userManager.UpdateAsync(user);
                     }
 
-                    await _userManager.AddToRoleAsync(user, ApplicationRoles.Admin);
+                    await _userManager.AddToRoleAsync(user, ApplicationRoles.User);
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Movie");
                 }
@@ -144,7 +144,6 @@ namespace ASP_MVC_Movie.Controllers
             {
                 return View("Error");
             }
-
             return RedirectToAction("Index", "Movie");
         }
 
