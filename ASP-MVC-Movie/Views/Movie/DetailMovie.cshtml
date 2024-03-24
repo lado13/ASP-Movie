@@ -25,11 +25,26 @@
         </div>
 
         <div class="movie-info-container p-5 mb-5">
-            <p class="text-warning">Genre: <span class="text-white">@Model.Genre.Name</span></p>
+
+
+            <p class="text-warning">
+                Genres:
+                <span class="text-white">
+                    @foreach (var movieGenre in Model.MovieGenres)
+                    {
+                        <span>@movieGenre.Genre.Name</span>
+                        if (movieGenre != Model.MovieGenres.Last())
+                        {
+                            <span>, </span>
+                        }
+                    }
+                </span>
+            </p>
+
             <p class="text-warning">Country:  <span class="text-white">@Model.Country</span></p>
             <p class="text-warning">Directory: <span class="text-white">@Model.Director</span></p>
             <p class="text-warning">Description: <span class="text-white">@Model.Description</span></p>
-            <p class="text-warning">Release Date: <span class="text-white">@Model.ReleaseDate.ToShortDateString()</span></p>
+            <p class="text-warning">Release Date: <span class="text-white">@Model.ReleaseDate</span></p>
         </div>
     </div>
 

@@ -11,14 +11,13 @@ namespace ASP_MVC_Movie.Models
         [Required]
         public string Title { get; set; }
 
-        public int GenreId { get; set; }
-        public Genre? Genre { get; set; }
+        public List<MovieGenre> MovieGenres { get; set; }
         public string Country { get; set; }
         [Range(0, 10, ErrorMessage = "The Rating must be between 0 and 10.")]
         public double Rating { get; set; }
         public string Director { get; set; }
         public string Description { get; set; }
-        public DateTime ReleaseDate { get; set; }
+        public int ReleaseDate { get; set; }
         public string? FilePath { get; set; }
 
         [Display(Name = "Upload Video")]

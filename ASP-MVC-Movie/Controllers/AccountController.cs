@@ -2,7 +2,6 @@
 using ASP_MVC_Movie.Models;
 using ASP_MVC_Movie.Role;
 using ASP_MVC_Movie.ViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

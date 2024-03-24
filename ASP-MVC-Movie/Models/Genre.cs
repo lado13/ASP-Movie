@@ -8,7 +8,8 @@ namespace ASP_MVC_Movie.Models
 
         [Required(ErrorMessage = "Genre name required")]
         public string Name { get; set; }
+        public List<MovieGenre> MovieGenres { get; set; }
 
-     
+
     }
 }

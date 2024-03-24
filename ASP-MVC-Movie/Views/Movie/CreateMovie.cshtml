@@ -1,4 +1,5 @@
-﻿@model Movie
+﻿@using ASP_MVC_Movie.ViewModel
+@model MovieVM
 
 
 
@@ -7,7 +8,7 @@
     ViewData["Title"] = "Create Movie";
 }
 
-<div class="container w-25">
+<div class="container w-50">
 
     <h1 class="text-white">@ViewData["Title"]</h1>
 
@@ -26,29 +27,21 @@
             <span asp-validation-for="Title" class="text-danger"></span>
         </div>
 
+
         <div class="form-group">
-            <label class="text-white" asp-for="GenreId" class="control-label">Genre</label>
-            <select asp-for="GenreId" class="form-control">
-                <option value="">-- Select Genre --</option>
-                @foreach (var item in ViewBag.Genres)
-                {
-                    <option value="@item.Value">@item.Text</option>
-                }
-            </select>
-            <span asp-validation-for="GenreId" class="text-danger"></span>
-        </div>
-
-      @*   <div class="form-group">
-            <label>Genres</label><br />
-            @foreach (var genre in Model.Genres)
+            <label class="text-white">Genres:</label>
+            @foreach (var genre in Model.AvailableGenres)
             {
-                <input type="checkbox" name="SelectedGenres" value="@genre.Value" /> @genre.Text
-
-                <br />
+                <div class="checkbox text-white">
+                    <label>
+                        <input type="checkbox" name="SelectedGenreIds" value="@genre.Id" />
+                        @genre.Name
+                    </label>
+                </div>
             }
-            <span asp-validation-for="SelectedGenres" class="text-danger"></span>
         </div>
- *@
+    
+ 
 
         <div class="form-group">
             <label class="text-white" asp-for="Country" class="control-label"></label>
