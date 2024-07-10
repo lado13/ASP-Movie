@@ -15,6 +15,7 @@ builder.Services.AddTransient<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("Movie"));

@@ -31,25 +31,25 @@ namespace ASP_MVC_Movie.Services
 
         public async Task CreateMovieAsync(Movie movie)
         {
-            //if (movie.VideoFile != null && movie.VideoFile.Length > 0)
-            //{
-            //    var uploadsFolder = Path.Combine(_environment.WebRootPath, "videos");
+            if (movie.VideoFile != null && movie.VideoFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "videos");
 
-            //    if (!Directory.Exists(uploadsFolder))
-            //    {
-            //        Directory.CreateDirectory(uploadsFolder);
-            //    }
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
 
-            //    var uniqueFileName = Guid.NewGuid().ToString() + "_" + movie.VideoFile.FileName;
-            //    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + movie.VideoFile.FileName;
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-            //    {
-            //        await movie.VideoFile.CopyToAsync(fileStream);
-            //    }
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await movie.VideoFile.CopyToAsync(fileStream);
+                }
 
-            //    movie.FilePath = "/videos/" + uniqueFileName;
-            //}
+                movie.FilePath = "/videos/" + uniqueFileName;
+            }
             _context.Add(movie);
             await _context.SaveChangesAsync();
         }
@@ -105,18 +105,6 @@ namespace ASP_MVC_Movie.Services
 
 
 
-
-
-
-
-        //public async Task<Movie> GetMovieDetailsAsync(int id)
-        //{
-        //    return await _context.Movies
-        //        .Include(m => m.Genre)
-        //        .Include(m => m.Comments)
-        //        .ThenInclude(c => c.User)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //}
 
         public bool MovieExists(int id)
         {
